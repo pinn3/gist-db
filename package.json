@@ -1,6 +1,6 @@
 {
   "name": "gist-db",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "author": "Matthew Chase Whittemore <mcwhittemore@gmail.com>",
   "description": "Treat your gist account like a database",
   "contributors": [
@@ -18,7 +18,7 @@
   "main": "./gist-db",
   "repository": {
     "type": "git",
-    "url": ""
+    "url": "https://github.com/mcwhittemore/gist-db.git"
   },
   "dependencies": {
     "github":"0.1.8"
