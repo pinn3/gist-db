@@ -1,0 +1,27 @@
+{
+  "name": "gist-db",
+  "version": "0.0.1",
+  "author": "Matthew Chase Whittemore <mcwhittemore@gmail.com>",
+  "description": "Treat your gist account like a database",
+  "contributors": [
+    {
+      "name": "Matthew Chase Whittemore",
+      "email": "mcwhittemore@gmail.com"
+    } 
+  ],
+  "keywords": [
+    "database",
+    "db",
+    "gist",
+    "orm"
+  ],
+  "main": "./gist-db",
+  "repository": {
+    "type": "git",
+    "url": ""
+  },
+  "dependencies": {
+    "github":"0.1.8"
+  },
+  "license": "MIT"
+}
