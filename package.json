@@ -21,7 +21,9 @@
     "url": "https://github.com/mcwhittemore/gist-db.git"
   },
   "dependencies": {
-    "github":"0.1.8"
+    "github":"0.1.8",
+    "request":"2.14.0",
+    "taffydb": "https://github.com/mcwhittemore/taffydb/tarball/master"
   },
   "license": "MIT"
 }

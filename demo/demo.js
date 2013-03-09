@@ -1,9 +1,6 @@
 var config = {}
 
-var gistDb = require("../gist-db")(config);
+var GISTDB = require("../gist-db");
 
-gistDb.select();
-gistDb.update();
-gistDb.insert();
-gistDb.delete();
+var _db = GISTDB(config);
 

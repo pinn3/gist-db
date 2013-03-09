@@ -15,9 +15,7 @@ module.exports = function(c){
 	DB = TAFFY([]);
 
 	//ADD REFRESH FUNCTION TO DB
-	DB.refresh = function(){
-
-	}
+	DB.refresh = refresh;
 
 	//CONNECT TO GITHUB
 	github = new GitHubApi({
@@ -30,9 +28,18 @@ module.exports = function(c){
 	//CREATE EVENTS
 
 	//START EVENT TIMER
+	setTimeout(refresh, config.refreshMin*1000);
 
 	return DB;
 }
 
+var refresh = function(){
 
-/*********************************************************************/
+	var options = {
+		user: "mcwhittemore"
+	}
+
+	github.gists.getFromUser(options, function(err, res){
+		console.log(Object.keys(res));
+	});
+}
