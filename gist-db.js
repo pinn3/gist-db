@@ -20,11 +20,19 @@ var githubMeta = undefined;
 var numGistPending = -1;
 var status = "LOCKED";
 
+var userDefinedFile = undefined;
 
-module.exports = function(c){
+
+module.exports = function(c, udf){
 
 	//merge configs
 	//config = c;
+
+	if(udf==undefined){
+		udf = function(file){ return file; }
+	}
+
+	userDefinedFile = udf;
 
 	_db = TAFFY([]);
 
@@ -124,10 +132,6 @@ var continueRefresh = function(){
 	numGistPending--;
 }
 
-var evalGroups = function(file){
-	return {};
-}
-
 var callGithub = function(err, res){
 
 	if(err){
@@ -174,8 +178,10 @@ var gatherGithubInfo = function(gist){
 				file.id = gist.id+"_"+file.filename;
 				file.gist_id = gist.id;
 				file.raw = body;
-				file.groups = evalGroups(file);
-				_db.insert(file);
+				file = userDefinedFile(file);
+				if(file!=undefined){
+					_db.insert(file);
+				}
 			}
 
 			if(numGistPending==0){
