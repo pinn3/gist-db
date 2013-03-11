@@ -1,3 +1,4 @@
 module.exports = {
-	refreshMin: 10
+	refreshMin: 10,
+	username: "mcwhittemore"
 }
