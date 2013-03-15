@@ -2,16 +2,10 @@ var url = require("url");
 
 var GitHubApi = require("github");
 var TAFFY = require("taffydb").taffy;
+var EventEmitter = require('events').EventEmitter;
 //var request = require("request");
 
 var config = require("./config");
-
-var document = {};
-document.write = function(html){
-	return html;
-}
-
-var github = undefined;
 
 var _db = undefined;
 
@@ -20,86 +14,126 @@ var githubMeta = undefined;
 var numGistPending = -1;
 var status = "LOCKED";
 
-var userDefinedFile = undefined;
+var fileInit = undefined;
 
-
-module.exports = function(c, udf){
+module.exports = function(userConfig, userFileInit){
 
 	//merge configs
-	//config = c;
-
-	if(udf==undefined){
-		udf = function(file){ return file; }
+	if(typeof userConfig == "object"){
+		config = mergeConfigs(config, userConfig);
+	}
+	else if(typeof userConfig == "function"){
+		userFileInit = userConfig;
+		userConfig = {};
 	}
 
-	userDefinedFile = udf;
 
-	_db = TAFFY([]);
+	if(typeof userFileInit == "object"){
+		userFileInit = function(file){ return file; }
+	}
+
+	fileInit = userFileInit;
+
+	_db = initDB();
+
+	_db.event = new EventEmitter();
 
 	//ADD REFRESH FUNCTION TO _db
 	_db.refresh = refresh;
-	_db.ready = ready;
 
 	//CONNECT TO GITHUB
-	github = new GitHubApi({
-	    // required
-	    version: "3.0.0",
-	    // optional
-	    timeout: 5000
+	_db.github = new GitHubApi({
+	    version: config.github.version,
+	    timeout: config.github.timeout
 	});
 
 	//CREATE EVENTS
 
-	//START EVENT TIMER
-	setTimeout(startRefresh, config.refreshMin*1000);
+	//START TIMER
+	runRefresh();
 
 	return _db;
 }
 
-var ready = function(callback){
+var initDB = function(){
 
-	//console.log("STATUS: "+status+" | NumCalls: "+numGistPending);
+	var data = [];
 
-	if(numGistPending!=0){
-		status = "LOCKED";
+	if(config.local.save!="NEVER"){
+		if(typeof config.local.save== "undefined"){
+			//EMIT SOME ERR
+		}
+		else{
+			var fs = require("fs");
+			//OPEN FILE
+
+			//CONVERT STRING TO OBJECT
+
+			//CHECK OBJECT IS ARRAY
+
+			//SET DATA TO OBJECT
+		}
 	}
 
-	if(status=="UNLOCKED"){
-		callback();
-	}
-	else if(typeof githubMeta!="undefined"&&parseInt(githubMeta['x-ratelimit-remaining'])<=0){
-		//EMIT WARNING
-		console.log("NUM CALLS ERROR");
-		callback();
-	}
-	else{
-		setTimeout(function(){ ready(callback); }, 100);
-	}
+	return TAFFY(data);
 }
 
-var startRefresh = function(){
+var saveDB = function(){
+
+	//GATHER DATA
+
+	//TURN DATA INTO A STRING
+
+	//SAVE DATA
+
+}
+
+var mergeConfigs = function(keep, add){
+
+	var keys = Object.keys(add);
+
+	for(var i=0; i<keys.length; i++){
+		var key = keys[i];
+		if(typeof keep[key]=="undefined" || typeof add[key]!="object"){
+			keep[key] = add[key];
+		}
+		else{
+			keep[key] = mergeConfigs(keep[key], add[key]);
+		}
+	}
+
+	return keep;
+}
+
+var runRefresh = function(){
+	_db.event.emit('refreshing');
 	refresh(1);
+	setTimeout(runRefresh, config.refreshMin*1000*60);
 }
 
 var refresh = function(pageNum){
 
 	numGistPending==-1 ? numGistPending=1 : numGistPending++;
 
+	if(pageNum==undefined){
+		pageNum = 1;
+	}
+
 	var options = {
-		user: config.username,
-		per_page: 100,
+		user: config.github.username,
+		per_page: config.github.per_page,
 		page: pageNum
 	}
 
-	numGistPending==-1 ? numGistPending=1 : numGistPending++;
-	github.gists.getFromUser(options, callGithub);
+	
+	_db.github.gists.getFromUser(options, callGithub);
 
 	numGistPending--;
 }
 
 var continueRefresh = function(){
 
-	if(typeof githubMeta.link != "undefined"){
+	if(githubMeta != undefined && githubMeta.link != undefined){
 		var links = githubMeta.link.split(", ");
 
 		var next = -1;
@@ -124,77 +158,99 @@ var continueRefresh = function(){
 		//FIGURE OUT HOW TO DO THIS IN A LOOP
 		//SO A BUNCH CAN GO AT ONCE
 		if(next>-1){
-
+			console.log("NEXT PAGE: "+next);
 			refresh(next);
 		}
 	}
+}
 
-	numGistPending--;
+var endRefresh = function(err){
+	_db.event.emit('refreshed', err);
+	if(config.local.save!="NEVER"){
+		saveDB();
+	}
 }
 
 var callGithub = function(err, res){
 
+	numGistPending==-1 ? numGistPending=1 : numGistPending++;
+	
 	if(err){
-		//EMIT SOME ERROR
-		console.log(err);
-		status = "UNLOCKED";
+		_db.event.emit('github_error', err, res);
+		endRefresh(err);
 	}
 	else{
 
 		githubMeta = res.meta;
 		delete res.meta;
 
-		numGistPending==-1 ? numGistPending=1 : numGistPending++;
+		
 		continueRefresh();
 
-		for(var i=0; i<res.length; i++){
-			gatherGithubInfo(res[i]);
+		numGistPending==-1 ? numGistPending=1 : numGistPending++;
+		gatherGithubInfo(res, 0, 0);
+	}
+
+	numGistPending--;
+
+}
+
+var gatherGithubInfo = function(gists, gist_index, file_index){
+
+	if(gist_index<gists.length){
+		var gist=gists[gist_index];
+
+		var filenames = Object.keys(gist.files);
+
+		if(file_index<filenames.length){
+
+			var filename = filenames[file_index];
+
+			var rawFileUrl = gist.files[filename].raw_url;
+
+			var file = gist.files[filename];
+			file.id = gist.id+"_"+file.filename;
+			file.gist_id = gist.id;
+			
+			file = fileInit(file); //returns undefined if it shouldn't be in the DB
+			
+			if(file!=undefined){
+				//GATHER RAW AND SAVE FILE TO DB
+				var getRawFile = function(err, res, body){
+
+					if(err){
+						file.error = 'dropped_raw_file';
+						file.raw = undefined;
+
+						_db.event.emit('file_error', err, file);
+					}
+					else{
+						file.error = undefined;
+						file.raw = body;
+					}
+
+					_db.insert(file);
+
+					numGistPending--;
+
+					if(file_index==filenames.length-1 && gist_index==gists.length-1 && numGistPending==0){
+						endRefresh();
+					}
+					else{
+						numGistPending==-1 ? numGistPending=1 : numGistPending++;
+						gatherGithubInfo(gists, gist_index, file_index+1);
+					}
+				}
+
+				numGistPending==-1 ? numGistPending=1 : numGistPending++;
+				require("request")({uri:rawFileUrl}, getRawFile);
+			}
+		}
+		else{
+			numGistPending==-1 ? numGistPending=1 : numGistPending++;
+			gatherGithubInfo(gists, gist_index+1, 0);
 		}
 	}
 
 	numGistPending--;
-}
-
-var gatherGithubInfo = function(gist){
-
-	var htmlUrl = "https://gist.github.com/"+config.username+"/"+gist.id+".js";
-
-	var filenames = Object.keys(gist.files);
-
-	for(var i=0; i<filenames.length; i++){
-
-		var filename = filenames[i];
-
-		var rawFileUrl = gist.files[filename].raw_url;
-		
-		//GATHER RAW AND SAVE FILE TO DB
-		var getRawFile = function(err, res, body){
-			numGistPending--;
-			if(err){
-				//EMIT SOME ERROR
-			}
-			else{
-				var file = gist.files[filename];
-				file.id = gist.id+"_"+file.filename;
-				file.gist_id = gist.id;
-				file.raw = body;
-				file = userDefinedFile(file);
-				if(file!=undefined){
-					_db.insert(file);
-				}
-			}
-
-			if(numGistPending==0){
-				status = "UNLOCKED";
-			}
-		}
-
-		numGistPending==-1 ? numGistPending=1 : numGistPending++;
-		require("request")({uri:rawFileUrl}, getRawFile);
-	}
-}
-
-String.prototype.regexIndexOf = function(regex, startpos) {
-	var indexOf = this.substring(startpos || 0).search(regex);
-	return (indexOf >= 0) ? (indexOf + (startpos || 0)) : indexOf;
 }
