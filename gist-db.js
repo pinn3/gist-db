@@ -28,7 +28,7 @@ module.exports = function(userConfig, userFileInit){
 	}
 
 
-	if(typeof userFileInit == "object"){
+	if(typeof userFileInit == "object" || userFileInit == undefined){
 		userFileInit = function(file){ return file; }
 	}
 

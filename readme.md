@@ -1,18 +1,126 @@
 # Gist-DB
 
-Treat your gist account like a database.
+Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][GHM].
+
+## Install
+
+	npm install gist-db
+
+## Usage
+
+	var config = {
+		github:{
+			username:"mcwhittemore"
+		}
+	}
+
+	var GISTDB = require("gist-db");
+
+	var _db = GISTDB(config);
+
+	_db.event.on('refreshing', function(){
+	  //MIGHT WANT TO LOCK DOWN THINGS FOR A BIT
+	  console.log("LETS DO THIS");
+	});
+
+	_db.event.on('refreshed', function(err){
+	  _db().each(function(file){
+	    console.log(file);
+	  });
+	});
+
+## File Object
+
+{
+	id = gist_id+"_"+filename,
+	gist_id = gist_id,
+	error: undefined,
+	raw: "THE RAW VALUE OF THE FILE",
+	type: "mime type",
+	language: "language the file is written in",
+	raw_url: "https path to the raw text version of the file",
+	size: numeric size of the file
+}
+
+## API
+
+Please refer to the [TaffyDB docs][http://www.taffydb.com/workingwithdata] for more details
+
+### GISTDB(config, fileInit)
+
+Create a new gist-db.
+
+**Parameters**
+
+config: settings. Required to at least pass {github:{username:"SOME_USER_NAME"}}
+fileInit: function(file). A function that returns the file obj if it should be added to the DB and undefined if it should be excluded.
+
+### _db({field:value})
+
+* TaffyDB: Yes
+* Returns: All rows that meet the passed criteria. Not passing an object, will return all rows.
+
+### _db.insert({})
+
+Inserts records into the database.
+
+* TaffyDB: Yes
+* Returns: A query pointing to the inserted records
+
+### _db.github
+
+Full use of the github module passed the github subsection of your config file.
+
+### _db.event
+
+An implementation of require("events").EventEmitter
+
+### _db.event.on('refreshing', function(){})
+
+Use to be notified when gist-db is connecting gist for a refresh.
+
+### _db.event.on('refreshed', function(err){})
+
+Use to be notified when gist-db is done its current refresh. If err is set, this refresh was ended due to error.
+
+### _db.event.on('file_error', function(err, file){})
+
+Use to be notified of errors in gathering data on the gist files.
+
+**Parameters**
+
+err: The error object that triggered this event
+file: The file object that was being gathered when the error occurred
+
+### _db.event.on('github_error', function(err, res){})
+
+Use to be notified of errors when connecting with github.
+
+**Parameters**
+
+err: the github module error object that triggered this event
+res: The github module response object. Might contain good data about the error.
 
 ## Things to be done
 
-### 0.1.0
+## 0.1.5
 
-* Add gist to groups
-* Add gist to gists
-* Add timed refresh
-* Add select
+* Add private gist gathering
+* Add local file loading
+* Add local file saving
 
 ### 0.2.0
 
-* Add Update
-* Add Insert
-* Add Delete
+* Add Update gist.github
+* Add Insert gist.github
+* Add Delete gist.github
+
+## Licenses
+
+All code not otherwise specified is Copyright 2013 Matthew Chase Whittemore and is released under the MIT License.
+
+All code found in the node_modules directory is Copyrighted by its creators. Please see each module for further details.
+
+
+[TDB]: http://www.taffydb.com/
+[GHM]: https://github.com/mikedeboer/node-github
