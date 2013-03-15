@@ -31,16 +31,16 @@ Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][
 
 ## File Object
 
-{
-	id = gist_id+"_"+filename,
-	gist_id = gist_id,
-	error: undefined,
-	raw: "THE RAW VALUE OF THE FILE",
-	type: "mime type",
-	language: "language the file is written in",
-	raw_url: "https path to the raw text version of the file",
-	size: numeric size of the file
-}
+	{
+		id = gist_id+"_"+filename,
+		gist_id = gist_id,
+		error: undefined,
+		raw: "THE RAW VALUE OF THE FILE",
+		type: "mime type",
+		language: "language the file is written in",
+		raw_url: "https path to the raw text version of the file",
+		size: numeric size of the file
+	}
 
 ## API
 
