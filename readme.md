@@ -51,7 +51,7 @@ Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][
 
 ## API
 
-Please refer to the [TaffyDB docs][http://www.taffydb.com/workingwithdata] for more details
+Please refer to the [TaffyDB docs](http://www.taffydb.com/workingwithdata) for more details
 
 ### GISTDB(config, fileInit)
 
@@ -59,8 +59,28 @@ Create a new gist-db.
 
 **Parameters**
 
-config: settings. Required to at least pass {github:{username:"SOME_USER_NAME"}}
-fileInit: function(file). A function that returns the file obj if it should be added to the DB and undefined if it should be excluded.
+* config: A settings object. 
+
+		Required: {
+		  github:{
+		    username:"SOME_USER_NAME"
+		  }
+		}
+
+		Defaults: {
+			refreshMin: 10,
+			github: {
+				per_page: 100,
+				timeout: 5000,
+				version: "3.0.0"
+			},
+			local: {
+				save: "NEVER", //NEVER, ON_REFRESH, ALWAYS 
+				location: undefined
+			}
+		}
+
+* fileInit: function(file). A function that returns the file obj if it should be added to the DB and undefined if it should be excluded.
 
 ### _db({field:value})
 
@@ -96,8 +116,8 @@ Use to be notified of errors in gathering data on the gist files.
 
 **Parameters**
 
-err: The error object that triggered this event
-file: The file object that was being gathered when the error occurred
+* err: The error object that triggered this event
+* file: The file object that was being gathered when the error occurred
 
 ### _db.event.on('github_error', function(err, res){})
 
@@ -105,8 +125,8 @@ Use to be notified of errors when connecting with github.
 
 **Parameters**
 
-err: the github module error object that triggered this event
-res: The github module response object. Might contain good data about the error.
+* err: the github module error object that triggered this event
+* res: The github module response object. Might contain good data about the error.
 
 ## Chagelog
 

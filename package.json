@@ -1,6 +1,6 @@
 {
   "name": "gist-db",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "author": "Matthew Chase Whittemore <mcwhittemore@gmail.com>",
   "description": "Treat your gist account like a database",
   "contributors": [
