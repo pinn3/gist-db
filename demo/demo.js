@@ -69,6 +69,7 @@ _db.event.on('refreshing', function(){
 });
 
 _db.event.on('refreshed', function(err){
+  console.log("refresh done");
   _db().each(function(file){
     console.log(file.id);
     console.log(file.groups);

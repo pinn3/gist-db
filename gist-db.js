@@ -16,6 +16,9 @@ var status = "LOCKED";
 
 var fileInit = undefined;
 
+var last_call = undefined;
+console.log(last_call);
+
 module.exports = function(userConfig, userFileInit){
 
 	//merge configs
@@ -125,6 +128,11 @@ var refresh = function(pageNum){
 		page: pageNum
 	}
 
+	if(last_call!=undefined){
+		options.since = last_call;
+	}
+
+	console.log(options);
 	
 	_db.github.gists.getFromUser(options, callGithub);
 
@@ -166,6 +174,7 @@ var continueRefresh = function(){
 
 var endRefresh = function(err){
 	_db.event.emit('refreshed', err);
+	last_call = (new Date()).toISOString();
 	if(config.local.save!="NEVER"){
 		saveDB();
 	}
@@ -192,6 +201,10 @@ var callGithub = function(err, res){
 	}
 
 	trackPendingGists(false, "end of callGithub");
+
+	if(numGistPending==0){
+		endRefresh();
+	}
 
 }
 
