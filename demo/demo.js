@@ -52,11 +52,15 @@ var fileInit = function(file){
 var _db = GISTDB(config, fileInit);
 
 _db.event.on('github_error', function(err, res){
-
+  console.log("github error");
+  console.log(err);
+  console.log();
 });
 
 _db.event.on('file_error', function(err, file){
-
+  console.log("file error");
+  console.log(err);
+  console.log();
 });
 
 _db.event.on('refreshing', function(){

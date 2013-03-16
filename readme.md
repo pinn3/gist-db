@@ -39,7 +39,14 @@ Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][
 		type: "mime type",
 		language: "language the file is written in",
 		raw_url: "https path to the raw text version of the file",
-		size: numeric size of the file
+		size: numeric size of the file,
+		gist: {
+			id: gist_id
+			public: boolean,
+			created_at: date object,
+			updated_at: date object,
+			description: "the gist description"
+		}
 	}
 
 ## API
@@ -101,13 +108,22 @@ Use to be notified of errors when connecting with github.
 err: the github module error object that triggered this event
 res: The github module response object. Might contain good data about the error.
 
+## Chagelog
+
+### 0.1.1
+
+* Added gist object to file for meta data on the gist the file is from.
+* Changed database refresh to use merge rather than insert so items won't duplicate
+* Added check just before getRawFile and the add to database that checks if the file is in the db and if it is compares if the gist.updated_at of the new file is newer than that of the old file. This was can lower the number of calls to github and speed up the code a bit.
+
 ## Things to be done
 
-## 0.1.5
+### 0.1.5
 
 * Add private gist gathering
 * Add local file loading
 * Add local file saving
+* Add tests
 
 ### 0.2.0
 

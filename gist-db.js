@@ -113,7 +113,7 @@ var runRefresh = function(){
 
 var refresh = function(pageNum){
 
-	numGistPending==-1 ? numGistPending=1 : numGistPending++;
+	trackPendingGists(true, "start of refresh");
 
 	if(pageNum==undefined){
 		pageNum = 1;
@@ -128,7 +128,7 @@ var refresh = function(pageNum){
 	
 	_db.github.gists.getFromUser(options, callGithub);
 
-	numGistPending--;
+	trackPendingGists(false, "end of refresh");
 }
 
 var continueRefresh = function(){
@@ -173,7 +173,7 @@ var endRefresh = function(err){
 
 var callGithub = function(err, res){
 
-	numGistPending==-1 ? numGistPending=1 : numGistPending++;
+	trackPendingGists(true, "start of callGithub");
 	
 	if(err){
 		_db.event.emit('github_error', err, res);
@@ -187,11 +187,11 @@ var callGithub = function(err, res){
 		
 		continueRefresh();
 
-		numGistPending==-1 ? numGistPending=1 : numGistPending++;
+		trackPendingGists(true, "gather Github Info callGithub");
 		gatherGithubInfo(res, 0, 0);
 	}
 
-	numGistPending--;
+	trackPendingGists(false, "end of callGithub");
 
 }
 
@@ -211,10 +211,25 @@ var gatherGithubInfo = function(gists, gist_index, file_index){
 			var file = gist.files[filename];
 			file.id = gist.id+"_"+file.filename;
 			file.gist_id = gist.id;
+			file.gist = {
+				id: gist.id,
+				public: gist.public,
+				created_at: new Date(gist.created_at),
+				updated_at: new Date(gist.updated_at),
+				description: gist.description
+			}
 			
 			file = fileInit(file); //returns undefined if it shouldn't be in the DB
 			
+			var oldFile = undefined;
 			if(file!=undefined){
+				oldFile = _db({id:file.id}).first();
+				if(!oldFile){
+					oldFile = undefined;
+				}
+			}
+
+			if(file!=undefined&&(oldFile==undefined||file.gist.updated_at.getTime()>oldFile.gist.updated_at.getTime())){
 				//GATHER RAW AND SAVE FILE TO DB
 				var getRawFile = function(err, res, body){
 
@@ -229,28 +244,45 @@ var gatherGithubInfo = function(gists, gist_index, file_index){
 						file.raw = body;
 					}
 
-					_db.insert(file);
+					_db.merge(file);
 
-					numGistPending--;
+					trackPendingGists(false, "got file getRawFile");
 
 					if(file_index==filenames.length-1 && gist_index==gists.length-1 && numGistPending==0){
 						endRefresh();
 					}
 					else{
-						numGistPending==-1 ? numGistPending=1 : numGistPending++;
+						trackPendingGists(true, "get raw file getRawFile");
 						gatherGithubInfo(gists, gist_index, file_index+1);
 					}
 				}
 
-				numGistPending==-1 ? numGistPending=1 : numGistPending++;
+				trackPendingGists(true, "get raw file gatherGithubInfo");
 				require("request")({uri:rawFileUrl}, getRawFile);
+			}
+			else{
+				trackPendingGists(true, "next file gatherGithubInfo");
+				gatherGithubInfo(gists, gist_index, file_index+1);
 			}
 		}
 		else{
-			numGistPending==-1 ? numGistPending=1 : numGistPending++;
+			trackPendingGists(true, "next gist gatherGithubInfo");
 			gatherGithubInfo(gists, gist_index+1, 0);
 		}
 	}
 
-	numGistPending--;
+	trackPendingGists(false, "end of gatherGithubInfo");
+	if(numGistPending==0){
+		endRefresh();
+	}
+}
+
+var trackPendingGists = function(add, note){
+	if(add){
+		numGistPending==-1 ? numGistPending=1 : numGistPending++
+	}
+	else{
+		numGistPending--
+	}
+	//console.log("ADD: "+add+" | NOTE: "+note + " | NUM: "+numGistPending);
 }
