@@ -25,18 +25,20 @@ var fileInit = function(file){
   //set file as excluded as we only want to include it if it has a group
   var include = false;
 
-  //loop through the groups
-  for(var i=0; i<groups.length; i++){
-    var group = groups[i];
-    var rule = group_rules[group];
+  if(file.gist.public == false){
+    //loop through the groups
+    for(var i=0; i<groups.length; i++){
+      var group = groups[i];
+      var rule = group_rules[group];
 
-    //check if filename matches regex rule
-    if(file.filename.search(rule)>-1){
-      file.groups[group] = true; //set included in group as true
-      include = true; //set include file as true
-    }
-    else{
-      file.groups[group] = false;
+      //check if filename matches regex rule
+      if(file.filename.search(rule)>-1){
+        file.groups[group] = true; //set included in group as true
+        include = true; //set include file as true
+      }
+      else{
+        file.groups[group] = false;
+      }
     }
   }
 

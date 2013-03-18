@@ -17,7 +17,6 @@ var status = "LOCKED";
 var fileInit = undefined;
 
 var last_call = undefined;
-console.log(last_call);
 
 module.exports = function(userConfig, userFileInit){
 
@@ -49,6 +48,10 @@ module.exports = function(userConfig, userFileInit){
 	    version: config.github.version,
 	    timeout: config.github.timeout
 	});
+
+	if(config.github.authenticate != undefined){
+		_db.github.authenticate(config.github.authenticate);
+	}
 
 	//CREATE EVENTS
 
@@ -131,8 +134,6 @@ var refresh = function(pageNum){
 	if(last_call!=undefined){
 		options.since = last_call;
 	}
-
-	console.log(options);
 	
 	_db.github.gists.getFromUser(options, callGithub);
 

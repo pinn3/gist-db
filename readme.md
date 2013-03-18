@@ -80,6 +80,25 @@ Create a new gist-db.
 			}
 		}
 
+		Available: {
+			refreshMin: 10,
+			github: {
+				per_page: 100,
+				timeout: 5000
+				version: "3.0.0",
+				authenticate: {
+					type: "basic or oauth",
+					username: "your_username_if_basic",
+					password: "your_password_if_basic",
+					token: "your_oauth_token_if_oauth"
+				},
+				local: {
+					save: "NEVER OR NEVER OR ON_REFRESH OR ALWAYS"
+					location: "path and filename"
+				}
+			}
+		}
+
 * fileInit: function(file). A function that returns the file obj if it should be added to the DB and undefined if it should be excluded.
 
 ### _db({field:value})
@@ -138,11 +157,14 @@ Use to be notified of errors when connecting with github.
 * Changed github module to be my fork which supports since on the gist endpoints. Will change back once a new version of node-github is in NPM
 * Added since param to github calls, so we will only return gists added/edited since our last call.
 
+### 0.1.2
+
+* Added github authentication and thus the ability to access private gists
+
 ## Things to be done
 
 ### 0.1.5
 
-* Add private gist gathering
 * Add local file loading
 * Add local file saving
 * Add tests
