@@ -33,6 +33,7 @@ Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][
 
 	{
 		id = gist_id+"_"+filename,
+		filename = filename,
 		gist_id = gist_id,
 		error: undefined,
 		raw: "THE RAW VALUE OF THE FILE",
@@ -53,7 +54,7 @@ Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][
 
 Please refer to the [TaffyDB docs](http://www.taffydb.com/workingwithdata) for more details
 
-### GISTDB(config, fileInit)
+### GISTDB(config, fileInit, fileSave)
 
 Create a new gist-db.
 
@@ -100,6 +101,7 @@ Create a new gist-db.
 		}
 
 * fileInit: function(file). A function that returns the file obj if it should be added to the DB and undefined if it should be excluded.
+* fileSave: function(file, callback). A function that allows for further parameter work on files after the raw data has been received. A functioning implementation of this MUST pass the file object as a parameter to callback to save changes to the DB. Note: this will perform an update to the database.
 
 ### _db({field:value})
 
@@ -160,6 +162,10 @@ Use to be notified of errors when connecting with github.
 ### 0.1.2
 
 * Added github authentication and thus the ability to access private gists
+
+### 0.1.3
+
+* Added userFileSave function, which allows users to do custom (async) actions to a file after the raw data has been pulled in.
 
 ## Things to be done
 

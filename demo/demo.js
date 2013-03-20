@@ -25,20 +25,17 @@ var fileInit = function(file){
   //set file as excluded as we only want to include it if it has a group
   var include = false;
 
-  if(file.gist.public == false){
-    //loop through the groups
-    for(var i=0; i<groups.length; i++){
-      var group = groups[i];
-      var rule = group_rules[group];
+  for(var i=0; i<groups.length; i++){
+    var group = groups[i];
+    var rule = group_rules[group];
 
-      //check if filename matches regex rule
-      if(file.filename.search(rule)>-1){
-        file.groups[group] = true; //set included in group as true
-        include = true; //set include file as true
-      }
-      else{
-        file.groups[group] = false;
-      }
+    //check if filename matches regex rule
+    if(file.filename.search(rule)>-1){
+      file.groups[group] = true; //set included in group as true
+      include = true; //set include file as true
+    }
+    else{
+      file.groups[group] = false;
     }
   }
 
@@ -51,7 +48,12 @@ var fileInit = function(file){
 
 }
 
-var _db = GISTDB(config, fileInit);
+var fileSave = function(file, callback){
+  file.html = file.raw;
+  callback(file);
+}
+
+var _db = GISTDB(config, fileInit, fileSave);
 
 _db.event.on('github_error', function(err, res){
   console.log("github error");
@@ -61,7 +63,8 @@ _db.event.on('github_error', function(err, res){
 
 _db.event.on('file_error', function(err, file){
   console.log("file error");
-  console.log(err);
+  console.log("FILE: "+file.id);
+  console.log("ERROR: "+err.code);
   console.log();
 });
 
@@ -74,7 +77,13 @@ _db.event.on('refreshed', function(err){
   console.log("refresh done");
   _db().each(function(file){
     console.log(file.id);
-    console.log(file.groups);
-    console.log();
+    if(!file.error){
+      console.log("RAW: "+file.raw.length+" | HTML: "+file.html.length);
+      console.log();
+    }
+    else{
+      console.log("ERROR");
+      console.log();
+    }
   });
 });

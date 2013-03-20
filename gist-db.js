@@ -15,10 +15,11 @@ var numGistPending = -1;
 var status = "LOCKED";
 
 var fileInit = undefined;
+var fileSave = undefined;
 
 var last_call = undefined;
 
-module.exports = function(userConfig, userFileInit){
+module.exports = function(userConfig, userFileInit, userFileSave){
 
 	//merge configs
 	if(typeof userConfig == "object"){
@@ -34,7 +35,12 @@ module.exports = function(userConfig, userFileInit){
 		userFileInit = function(file){ return file; }
 	}
 
+	if(typeof userFileSave == "object" || userFileSave == undefined){
+		userFileSave = function(file, callback){ }
+	}
+
 	fileInit = userFileInit;
+	fileSave = userFileSave;
 
 	_db = initDB();
 
@@ -259,6 +265,9 @@ var gatherGithubInfo = function(gists, gist_index, file_index){
 					}
 
 					_db.merge(file);
+					fileSave(file, function(the_file){
+						_db.merge(the_file);
+					});
 
 					trackPendingGists(false, "got file getRawFile");
 
