@@ -3,7 +3,7 @@ var url = require("url");
 var GitHubApi = require("github");
 var TAFFY = require("taffydb").taffy;
 var EventEmitter = require('events').EventEmitter;
-//var request = require("request");
+var request = require("request");
 
 var config = require("./config");
 
@@ -281,7 +281,7 @@ var gatherGithubInfo = function(gists, gist_index, file_index){
 				}
 
 				trackPendingGists(true, "get raw file gatherGithubInfo");
-				require("request")({uri:rawFileUrl}, getRawFile);
+				request({uri:rawFileUrl}, getRawFile);
 			}
 			else{
 				trackPendingGists(true, "next file gatherGithubInfo");

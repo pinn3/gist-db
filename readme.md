@@ -167,9 +167,13 @@ Use to be notified of errors when connecting with github.
 
 * Added userFileSave function, which allows users to do custom (async) actions to a file after the raw data has been pulled in.
 
+### 0.1.4
+
+* Request was being requried before each use, which was causing a timeout problems. Updated the code to use a single request object.
+
 ## Things to be done
 
-### 0.1.5
+### 0.1.10
 
 * Add local file loading
 * Add local file saving
