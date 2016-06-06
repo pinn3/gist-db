@@ -1,17 +1,19 @@
-var config = {
+'use strict'
+
+const config = {
   github: {
     username: 'mcwhittemore'
   }
 }
 
-var GISTDB = require('../gist-db')
+const GISTDB = require('../gist-db')
 
-var fileInit = function (file) {
+const fileInit = function (file) {
   // init custom group object
   file.groups = {}
 
   // define groups and their regex include rules
-  var groupRules = {
+  const groupRules = {
     'blog': /^Blog_/,
     'project': /^Project_/,
     'icon': /^Icon_$/,
@@ -19,14 +21,14 @@ var fileInit = function (file) {
   }
 
   // get group names
-  var groups = Object.keys(groupRules)
+  const groups = Object.keys(groupRules)
 
   // set file as excluded as we only want to include it if it has a group
-  var include = false
+  let include = false
 
-  for (var i = 0; i < groups.length; i++) {
-    var group = groups[i]
-    var rule = groupRules[group]
+  for (let i = 0; i < groups.length; i++) {
+    const group = groups[i]
+    const rule = groupRules[group]
 
     // check if filename matches regex rule
     if (file.filename.search(rule) > -1) {
@@ -44,12 +46,12 @@ var fileInit = function (file) {
   }
 }
 
-var fileSave = function (file, callback) {
+const fileSave = function (file, callback) {
   file.html = file.raw
   callback(file)
 }
 
-var _db = GISTDB(config, fileInit, fileSave)
+const _db = GISTDB(config, fileInit, fileSave)
 
 _db.event.on('github_error', function (err, res) {
   console.log('github error')
