@@ -6,7 +6,6 @@ const GitHubApi = require('github')
 const TAFFY = require('taffydb').taffy
 const EventEmitter = require('events').EventEmitter
 const request = require('request')
-const fs = require('fs')
 
 let config = require('./config')
 
@@ -140,7 +139,6 @@ const continueRefresh = function () {
     const links = githubMeta.link.split(', ')
 
     let next = -1
-    let last = 2
 
     for (let i = 0; i < links.length; i++) {
       const linkTag = links[i]
@@ -152,8 +150,6 @@ const continueRefresh = function () {
 
       if (linkParts[1] === 'rel="next"') {
         next = details.query.page
-      } else {
-        last = details.query.page
       }
     }
 
