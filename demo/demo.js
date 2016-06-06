@@ -1,12 +1,12 @@
 'use strict'
 
+const GISTDB = require('../build')
+
 const config = {
   github: {
     username: 'mcwhittemore'
   }
 }
-
-import GISTDB from '../build/gist-db'
 
 const fileInit = (file) => {
   // init custom group object

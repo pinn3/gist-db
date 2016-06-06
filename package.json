@@ -18,6 +18,7 @@
   "main": "./build",
   "scripts": {
     "prepublish": "npm run build",
+    "postinstall": "npm run build",
     "prebuild": "rm -rf build && mkdir build",
     "build": "babel src -d build",
     "watch": "babel src -w -d build",
