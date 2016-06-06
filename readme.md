@@ -1,6 +1,7 @@
 # Gist-DB
 
-Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][GHM].
+Treat your gist account like a database. Powered by [TaffyDB][TDB]
+and [Github][GHM].
 
 ## Install
 
@@ -52,7 +53,8 @@ Treat your gist account like a database. Powered by [TaffyDB][TDB] and [Github][
 
 ## API
 
-Please refer to the [TaffyDB docs](http://www.taffydb.com/workingwithdata) for more details
+Please refer to the [TaffyDB docs](http://www.taffydb.com/workingwithdata) for 
+more details
 
 ### GISTDB(config, fileInit, fileSave)
 
@@ -100,13 +102,18 @@ Create a new gist-db.
 			}
 		}
 
-* fileInit: function(file). A function that returns the file obj if it should be added to the DB and undefined if it should be excluded.
-* fileSave: function(file, callback). A function that allows for further parameter work on files after the raw data has been received. A functioning implementation of this MUST pass the file object as a parameter to callback to save changes to the DB. Note: this will perform an update to the database.
+* fileInit: function(file). A function that returns the file obj if it should
+  be added to the DB and undefined if it should be excluded.
+* fileSave: function(file, callback). A function that allows for further
+  parameter work on files after the raw data has been received. A functioning
+  implementation of this MUST pass the file object as a parameter to callback
+  to save changes to the DB. Note: this will perform an update to the database.
 
 ### _db({field:value})
 
 * TaffyDB: Yes
-* Returns: All rows that meet the passed criteria. Not passing an object, will return all rows.
+* Returns: All rows that meet the passed criteria. Not passing an object,
+  will return all rows.
 
 ### _db.insert({})
 
@@ -129,7 +136,8 @@ Use to be notified when gist-db is connecting gist for a refresh.
 
 ### _db.event.on('refreshed', function(err){})
 
-Use to be notified when gist-db is done its current refresh. If err is set, this refresh was ended due to error.
+Use to be notified when gist-db is done its current refresh. If err is set,
+this refresh was ended due to error.
 
 ### _db.event.on('file_error', function(err, file){})
 
@@ -147,17 +155,24 @@ Use to be notified of errors when connecting with github.
 **Parameters**
 
 * err: the github module error object that triggered this event
-* res: The github module response object. Might contain good data about the error.
+* res: The github module response object. Might contain good data about the
+  error.
 
 ## Chagelog
 
 ### 0.1.1
 
 * Added gist object to file for meta data on the gist the file is from.
-* Changed database refresh to use merge rather than insert so items won't duplicate
-* Added check just before getRawFile and the add to database that checks if the file is in the db and if it is compares if the gist.updated_at of the new file is newer than that of the old file. This was can lower the number of calls to github and speed up the code a bit.
-* Changed github module to be my fork which supports since on the gist endpoints. Will change back once a new version of node-github is in NPM
-* Added since param to github calls, so we will only return gists added/edited since our last call.
+* Changed database refresh to use merge rather than insert so items won't
+  duplicate
+* Added check just before getRawFile and the add to database that checks if the
+  file is in the db and if it is compares if the gist.updated_at of the new file
+  is newer than that of the old file. This was can lower the number of calls to
+  github and speed up the code a bit.
+* Changed github module to be my fork which supports since on the gist
+  endpoints. Will change back once a new version of node-github is in NPM
+* Added since param to github calls, so we will only return gists added/edited
+  since our last call.
 
 ### 0.1.2
 
@@ -165,11 +180,13 @@ Use to be notified of errors when connecting with github.
 
 ### 0.1.3
 
-* Added userFileSave function, which allows users to do custom (async) actions to a file after the raw data has been pulled in.
+* Added userFileSave function, which allows users to do custom (async) actions
+  to a file after the raw data has been pulled in.
 
 ### 0.1.4
 
-* Request was being requried before each use, which was causing a timeout problems. Updated the code to use a single request object.
+* Request was being requried before each use, which was causing a timeout
+  problems. Updated the code to use a single request object.
 
 ## Things to be done
 
@@ -187,9 +204,11 @@ Use to be notified of errors when connecting with github.
 
 ## Licenses
 
-All code not otherwise specified is Copyright 2013 Matthew Chase Whittemore and is released under the MIT License.
+All code not otherwise specified is Copyright 2013 Matthew Chase Whittemore and
+is released under the MIT License.
 
-All code found in the node_modules directory is Copyrighted by its creators. Please see each module for further details.
+All code found in the node_modules directory is Copyrighted by its creators. 
+Please see each module for further details.
 
 
 [TDB]: http://www.taffydb.com/
