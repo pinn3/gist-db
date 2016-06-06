@@ -1,311 +1,284 @@
-var url = require("url");
+'use strict'
 
-var GitHubApi = require("github");
-var TAFFY = require("taffydb").taffy;
-var EventEmitter = require('events').EventEmitter;
-var request = require("request");
+const url = require('url')
 
-var config = require("./config");
+const GitHubApi = require('github')
+const TAFFY = require('taffydb').taffy
+const EventEmitter = require('events').EventEmitter
+const request = require('request')
+const fs = require('fs')
 
-var _db = undefined;
+let config = require('./config')
 
-var githubMeta = undefined;
+var _db = null
+var githubMeta = null
+var fileInit = null
+var fileSave = null
+var lastCall = null
+var numGistPending = -1
 
-var numGistPending = -1;
-var status = "LOCKED";
+module.exports = function (userConfig, userFileInit, userFileSave) {
+  // merge configs
+  if (typeof userConfig === 'object') {
+    config = mergeConfigs(config, userConfig)
+  } else if (typeof userConfig === 'function') {
+    userFileInit = userConfig
+    userConfig = {}
+  }
 
-var fileInit = undefined;
-var fileSave = undefined;
+  if (typeof userFileInit === 'object' || !userFileInit) {
+    userFileInit = function (file) { return file }
+  }
 
-var last_call = undefined;
+  if (typeof userFileSave === 'object' || !userFileSave) {
+    userFileSave = function (file, callback) {}
+  }
 
-module.exports = function(userConfig, userFileInit, userFileSave){
+  fileInit = userFileInit
+  fileSave = userFileSave
 
-	//merge configs
-	if(typeof userConfig == "object"){
-		config = mergeConfigs(config, userConfig);
-	}
-	else if(typeof userConfig == "function"){
-		userFileInit = userConfig;
-		userConfig = {};
-	}
+  _db = initDB()
 
+  _db.event = new EventEmitter()
 
-	if(typeof userFileInit == "object" || userFileInit == undefined){
-		userFileInit = function(file){ return file; }
-	}
+  // ADD REFRESH FUNCTION TO _db
+  _db.refresh = refresh
 
-	if(typeof userFileSave == "object" || userFileSave == undefined){
-		userFileSave = function(file, callback){ }
-	}
+  // CONNECT TO GITHUB
+  _db.github = new GitHubApi({
+    version: config.github.version,
+    timeout: config.github.timeout
+  })
 
-	fileInit = userFileInit;
-	fileSave = userFileSave;
+  if (config.github.authenticate) {
+    _db.github.authenticate(config.github.authenticate)
+  }
 
-	_db = initDB();
+  // CREATE EVENTS
 
-	_db.event = new EventEmitter();
+  // START TIMER
+  runRefresh()
 
-	//ADD REFRESH FUNCTION TO _db
-	_db.refresh = refresh;
-
-	//CONNECT TO GITHUB
-	_db.github = new GitHubApi({
-	    version: config.github.version,
-	    timeout: config.github.timeout
-	});
-
-	if(config.github.authenticate != undefined){
-		_db.github.authenticate(config.github.authenticate);
-	}
-
-	//CREATE EVENTS
-
-	//START TIMER
-	runRefresh();
-
-	return _db;
+  return _db
 }
 
-var initDB = function(){
+const initDB = function () {
+  let data = []
 
-	var data = [];
+  if (config.local.save !== 'NEVER') {
+    if (!config.local.save) {
+      // EMIT SOME ERR
+    } else {
+      // OPEN FILE
 
-	if(config.local.save!="NEVER"){
-		if(typeof config.local.save== "undefined"){
-			//EMIT SOME ERR
-		}
-		else{
-			var fs = require("fs");
-			//OPEN FILE
+      // CONVERT STRING TO OBJECT
 
-			//CONVERT STRING TO OBJECT
+      // CHECK OBJECT IS ARRAY
 
-			//CHECK OBJECT IS ARRAY
+    // SET DATA TO OBJECT
+    }
+  }
 
-			//SET DATA TO OBJECT
-		}
-	}
-
-	return TAFFY(data);
+  return TAFFY(data)
 }
 
-var saveDB = function(){
+const saveDB = function () {
 
-	//GATHER DATA
+  // GATHER DATA
 
-	//TURN DATA INTO A STRING
+  // TURN DATA INTO A STRING
 
-	//SAVE DATA
+  // SAVE DATA
 
 }
 
-var mergeConfigs = function(keep, add){
+const mergeConfigs = function (keep, add) {
+  const keys = Object.keys(add)
 
-	var keys = Object.keys(add);
+  for (let i = 0; i < keys.length; i++) {
+    const key = keys[i]
+    if (!keep[key] || typeof add[key] !== 'object') {
+      keep[key] = add[key]
+    } else {
+      keep[key] = mergeConfigs(keep[key], add[key])
+    }
+  }
 
-	for(var i=0; i<keys.length; i++){
-		var key = keys[i];
-		if(typeof keep[key]=="undefined" || typeof add[key]!="object"){
-			keep[key] = add[key];
-		}
-		else{
-			keep[key] = mergeConfigs(keep[key], add[key]);
-		}
-	}
-
-	return keep;
+  return keep
 }
 
-var runRefresh = function(){
-	_db.event.emit('refreshing');
-	refresh(1);
-	setTimeout(runRefresh, config.refreshMin*1000*60);
+const runRefresh = function () {
+  _db.event.emit('refreshing')
+  refresh(1)
+  setTimeout(runRefresh, config.refreshMin * 1000 * 60)
 }
 
-var refresh = function(pageNum){
+const refresh = function (pageNum) {
+  trackPendingGists(true, 'start of refresh')
 
-	trackPendingGists(true, "start of refresh");
+  if (!pageNum) {
+    pageNum = 1
+  }
 
-	if(pageNum==undefined){
-		pageNum = 1;
-	}
+  const options = {
+    user: config.github.username,
+    per_page: config.github.per_page,
+    page: pageNum
+  }
 
-	var options = {
-		user: config.github.username,
-		per_page: config.github.per_page,
-		page: pageNum
-	}
+  if (lastCall) {
+    options.since = lastCall
+  }
 
-	if(last_call!=undefined){
-		options.since = last_call;
-	}
-	
-	_db.github.gists.getFromUser(options, callGithub);
+  _db.github.gists.getFromUser(options, callGithub)
 
-	trackPendingGists(false, "end of refresh");
+  trackPendingGists(false, 'end of refresh')
 }
 
-var continueRefresh = function(){
+const continueRefresh = function () {
+  if (githubMeta && githubMeta.link) {
+    const links = githubMeta.link.split(', ')
 
-	if(githubMeta != undefined && githubMeta.link != undefined){
-		var links = githubMeta.link.split(", ");
+    let next = -1
+    let last = 2
 
-		var next = -1;
-		var last = 2;
+    for (let i = 0; i < links.length; i++) {
+      const linkTag = links[i]
+      const linkParts = linkTag.split('; ')
 
-		for(var i=0; i<links.length; i++){
-			var link_tag = links[i];
-			var link_parts = link_tag.split("; ");
-			
-			var link = link_parts[0];
-			link = link.substring(1, link.length-1);
-			var details = url.parse(link, true);
-			
-			if(link_parts[1]=="rel=\"next\""){
-				next = details.query.page;
-			}
-			else{
-				last = details.query.page;
-			}
-		}
+      let link = linkParts[0]
+      link = link.substring(1, link.length - 1)
+      const details = url.parse(link, true)
 
-		//FIGURE OUT HOW TO DO THIS IN A LOOP
-		//SO A BUNCH CAN GO AT ONCE
-		if(next>-1){
-			console.log("NEXT PAGE: "+next);
-			refresh(next);
-		}
-	}
+      if (linkParts[1] === 'rel="next"') {
+        next = details.query.page
+      } else {
+        last = details.query.page
+      }
+    }
+
+    // FIGURE OUT HOW TO DO THIS IN A LOOP
+    // SO A BUNCH CAN GO AT ONCE
+    if (next > -1) {
+      console.log('NEXT PAGE: ' + next)
+      refresh(next)
+    }
+  }
 }
 
-var endRefresh = function(err){
-	_db.event.emit('refreshed', err);
-	last_call = (new Date()).toISOString();
-	if(config.local.save!="NEVER"){
-		saveDB();
-	}
+const endRefresh = function (err) {
+  _db.event.emit('refreshed', err)
+  lastCall = (new Date()).toISOString()
+  if (config.local.save !== 'NEVER') {
+    saveDB()
+  }
 }
 
-var callGithub = function(err, res){
+const callGithub = function (err, res) {
+  trackPendingGists(true, 'start of callGithub')
 
-	trackPendingGists(true, "start of callGithub");
-	
-	if(err){
-		_db.event.emit('github_error', err, res);
-		endRefresh(err);
-	}
-	else{
+  if (err) {
+    _db.event.emit('github_error', err, res)
+    endRefresh(err)
+  } else {
+    githubMeta = res.meta
+    delete res.meta
 
-		githubMeta = res.meta;
-		delete res.meta;
+    continueRefresh()
 
-		
-		continueRefresh();
+    trackPendingGists(true, 'gather Github Info callGithub')
+    gatherGithubInfo(res, 0, 0)
+  }
 
-		trackPendingGists(true, "gather Github Info callGithub");
-		gatherGithubInfo(res, 0, 0);
-	}
+  trackPendingGists(false, 'end of callGithub')
 
-	trackPendingGists(false, "end of callGithub");
-
-	if(numGistPending==0){
-		endRefresh();
-	}
-
+  if (numGistPending === 0) {
+    endRefresh()
+  }
 }
 
-var gatherGithubInfo = function(gists, gist_index, file_index){
+const gatherGithubInfo = function (gists, gistIndex, fileIndex) {
+  if (gistIndex < gists.length) {
+    const gist = gists[gistIndex]
 
-	if(gist_index<gists.length){
-		var gist=gists[gist_index];
+    const filenames = Object.keys(gist.files)
 
-		var filenames = Object.keys(gist.files);
+    if (fileIndex < filenames.length) {
+      const filename = filenames[fileIndex]
+      const rawFileUrl = gist.files[filename].raw_url
 
-		if(file_index<filenames.length){
+      let file = gist.files[filename]
+      file.id = gist.id + '_' + file.filename
+      file.gist_id = gist.id
+      file.gist = {
+        id: gist.id,
+        public: gist.public,
+        created_at: new Date(gist.created_at),
+        updated_at: new Date(gist.updated_at),
+        description: gist.description
+      }
 
-			var filename = filenames[file_index];
+      file = fileInit(file) // returns null if it shouldn't be in the DB
 
-			var rawFileUrl = gist.files[filename].raw_url;
+      let oldFile = null
+      if (file) {
+        oldFile = _db({id: file.id}).first()
+        if (!oldFile) {
+          oldFile = null
+        }
+      }
 
-			var file = gist.files[filename];
-			file.id = gist.id+"_"+file.filename;
-			file.gist_id = gist.id;
-			file.gist = {
-				id: gist.id,
-				public: gist.public,
-				created_at: new Date(gist.created_at),
-				updated_at: new Date(gist.updated_at),
-				description: gist.description
-			}
-			
-			file = fileInit(file); //returns undefined if it shouldn't be in the DB
-			
-			var oldFile = undefined;
-			if(file!=undefined){
-				oldFile = _db({id:file.id}).first();
-				if(!oldFile){
-					oldFile = undefined;
-				}
-			}
+      if (file && (!oldFile || file.gist.updated_at.getTime() > oldFile.gist.updated_at.getTime())) {
+        // GATHER RAW AND SAVE FILE TO DB
+        const getRawFile = function (err, res, body) {
+          if (err) {
+            file.error = 'dropped_raw_file'
+            file.raw = null
 
-			if(file!=undefined&&(oldFile==undefined||file.gist.updated_at.getTime()>oldFile.gist.updated_at.getTime())){
-				//GATHER RAW AND SAVE FILE TO DB
-				var getRawFile = function(err, res, body){
+            _db.event.emit('file_error', err, file)
+          } else {
+            file.error = null
+            file.raw = body
+          }
 
-					if(err){
-						file.error = 'dropped_raw_file';
-						file.raw = undefined;
+          _db.merge(file)
+          fileSave(file, function (theFile) {
+            _db.merge(theFile)
+          })
 
-						_db.event.emit('file_error', err, file);
-					}
-					else{
-						file.error = undefined;
-						file.raw = body;
-					}
+          trackPendingGists(false, 'got file getRawFile')
 
-					_db.merge(file);
-					fileSave(file, function(the_file){
-						_db.merge(the_file);
-					});
+          if (fileIndex === filenames.length - 1 && gistIndex === gists.length - 1 && numGistPending === 0) {
+            endRefresh()
+          } else {
+            trackPendingGists(true, 'get raw file getRawFile')
+            gatherGithubInfo(gists, gistIndex, fileIndex + 1)
+          }
+        }
 
-					trackPendingGists(false, "got file getRawFile");
+        trackPendingGists(true, 'get raw file gatherGithubInfo')
+        request({uri: rawFileUrl}, getRawFile)
+      } else {
+        trackPendingGists(true, 'next file gatherGithubInfo')
+        gatherGithubInfo(gists, gistIndex, fileIndex + 1)
+      }
+    } else {
+      trackPendingGists(true, 'next gist gatherGithubInfo')
+      gatherGithubInfo(gists, gistIndex + 1, 0)
+    }
+  }
 
-					if(file_index==filenames.length-1 && gist_index==gists.length-1 && numGistPending==0){
-						endRefresh();
-					}
-					else{
-						trackPendingGists(true, "get raw file getRawFile");
-						gatherGithubInfo(gists, gist_index, file_index+1);
-					}
-				}
-
-				trackPendingGists(true, "get raw file gatherGithubInfo");
-				request({uri:rawFileUrl}, getRawFile);
-			}
-			else{
-				trackPendingGists(true, "next file gatherGithubInfo");
-				gatherGithubInfo(gists, gist_index, file_index+1);
-			}
-		}
-		else{
-			trackPendingGists(true, "next gist gatherGithubInfo");
-			gatherGithubInfo(gists, gist_index+1, 0);
-		}
-	}
-
-	trackPendingGists(false, "end of gatherGithubInfo");
-	if(numGistPending==0){
-		endRefresh();
-	}
+  trackPendingGists(false, 'end of gatherGithubInfo')
+  if (numGistPending === 0) {
+    endRefresh()
+  }
 }
 
-var trackPendingGists = function(add, note){
-	if(add){
-		numGistPending==-1 ? numGistPending=1 : numGistPending++
-	}
-	else{
-		numGistPending--
-	}
-	//console.log("ADD: "+add+" | NOTE: "+note + " | NUM: "+numGistPending);
+const trackPendingGists = function (add, note) {
+  if (add) {
+    numGistPending === -1 ? numGistPending = 1 : numGistPending++
+  } else {
+    numGistPending--
+  }
+// console.log("ADD: "+add+" | NOTE: "+note + " | NUM: "+numGistPending)
 }
