@@ -15,12 +15,12 @@
     "gist",
     "github"
   ],
-  "main": "./build/gist-db",
+  "main": "./build",
   "scripts": {
     "prepublish": "npm run build",
     "prebuild": "rm -rf build && mkdir build",
-    "build": "babel gist-db.js -o build/gist-db.js",
-    "watch": "babel gist-db.js -w -o build/gist-db.js",
+    "build": "babel *.js -d build",
+    "watch": "babel *.js -w -d build",
     "test": "standard"
   },
   "standard": {
