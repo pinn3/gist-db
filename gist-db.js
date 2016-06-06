@@ -94,8 +94,7 @@ const saveDB = function () {
 const mergeConfigs = function (keep, add) {
   const keys = Object.keys(add)
 
-  for (let i = 0; i < keys.length; i++) {
-    const key = keys[i]
+  for (const key of keys) {
     if (!keep[key] || typeof add[key] !== 'object') {
       keep[key] = add[key]
     } else {
@@ -140,8 +139,7 @@ const continueRefresh = function () {
 
     let next = -1
 
-    for (let i = 0; i < links.length; i++) {
-      const linkTag = links[i]
+    for (const linkTag of links) {
       const linkParts = linkTag.split('; ')
 
       let link = linkParts[0]

@@ -26,8 +26,7 @@ const fileInit = function (file) {
   // set file as excluded as we only want to include it if it has a group
   let include = false
 
-  for (let i = 0; i < groups.length; i++) {
-    const group = groups[i]
+  for (const group of groups) {
     const rule = groupRules[group]
 
     // check if filename matches regex rule
