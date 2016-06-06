@@ -1,7 +1,4 @@
-'use strict'
-
 import url from 'url'
-
 import GitHubApi from 'github'
 import {taffy as TAFFY} from 'taffydb'
 import { EventEmitter } from 'events'
