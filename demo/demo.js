@@ -8,7 +8,7 @@ const config = {
 
 const GISTDB = require('../gist-db')
 
-const fileInit = function (file) {
+const fileInit = (file) => {
   // init custom group object
   file.groups = {}
 
@@ -45,37 +45,38 @@ const fileInit = function (file) {
   }
 }
 
-const fileSave = function (file, callback) {
+const fileSave = (file, callback) => {
   file.html = file.raw
   callback(file)
 }
 
 const _db = GISTDB(config, fileInit, fileSave)
 
-_db.event.on('github_error', function (err, res) {
+_db.event.on('github_error', (err, res) => {
   console.log('github error')
   console.log(err)
   console.log()
 })
 
-_db.event.on('file_error', function (err, file) {
+_db.event.on('file_error', (err, file) => {
   console.log('file error')
   console.log('FILE: ' + file.id)
   console.log('ERROR: ' + err.code)
   console.log()
 })
 
-_db.event.on('refreshing', function () {
+_db.event.on('refreshing', () => {
   // MIGHT WANT TO LOCK DOWN THINGS FOR A BIT
   console.log('LETS DO THIS')
 })
 
-_db.event.on('refreshed', function (err) {
+_db.event.on('refreshed', (err) => {
   if (err) {
+    // error should be handled
     console.log(err)
   }
   console.log('refresh done')
-  _db().each(function (file) {
+  _db().each((file) => {
     console.log(file.id)
     if (!file.error) {
       console.log('RAW: ' + file.raw.length + ' | HTML: ' + file.html.length)

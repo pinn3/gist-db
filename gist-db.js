@@ -9,14 +9,14 @@ const request = require('request')
 
 let config = require('./config')
 
-var _db = null
-var githubMeta = null
-var fileInit = null
-var fileSave = null
-var lastCall = null
-var numGistPending = -1
+let _db = null
+let githubMeta = null
+let fileInit = null
+let fileSave = null
+let lastCall = null
+let numGistPending = -1
 
-module.exports = function (userConfig, userFileInit, userFileSave) {
+module.exports = (userConfig, userFileInit, userFileSave) => {
   // merge configs
   if (typeof userConfig === 'object') {
     config = mergeConfigs(config, userConfig)
@@ -26,11 +26,11 @@ module.exports = function (userConfig, userFileInit, userFileSave) {
   }
 
   if (typeof userFileInit === 'object' || !userFileInit) {
-    userFileInit = function (file) { return file }
+    userFileInit = (file) => { return file }
   }
 
   if (typeof userFileSave === 'object' || !userFileSave) {
-    userFileSave = function (file, callback) {}
+    userFileSave = (file, callback) => {}
   }
 
   fileInit = userFileInit
@@ -61,7 +61,7 @@ module.exports = function (userConfig, userFileInit, userFileSave) {
   return _db
 }
 
-const initDB = function () {
+const initDB = () => {
   let data = []
 
   if (config.local.save !== 'NEVER') {
@@ -81,7 +81,7 @@ const initDB = function () {
   return TAFFY(data)
 }
 
-const saveDB = function () {
+const saveDB = () => {
 
   // GATHER DATA
 
@@ -91,7 +91,7 @@ const saveDB = function () {
 
 }
 
-const mergeConfigs = function (keep, add) {
+const mergeConfigs = (keep, add) => {
   const keys = Object.keys(add)
 
   for (const key of keys) {
@@ -105,13 +105,13 @@ const mergeConfigs = function (keep, add) {
   return keep
 }
 
-const runRefresh = function () {
+const runRefresh = () => {
   _db.event.emit('refreshing')
   refresh(1)
   setTimeout(runRefresh, config.refreshMin * 1000 * 60)
 }
 
-const refresh = function (pageNum) {
+const refresh = (pageNum) => {
   trackPendingGists(true, 'start of refresh')
 
   if (!pageNum) {
@@ -133,7 +133,7 @@ const refresh = function (pageNum) {
   trackPendingGists(false, 'end of refresh')
 }
 
-const continueRefresh = function () {
+const continueRefresh = () => {
   if (githubMeta && githubMeta.link) {
     const links = githubMeta.link.split(', ')
 
@@ -160,7 +160,7 @@ const continueRefresh = function () {
   }
 }
 
-const endRefresh = function (err) {
+const endRefresh = (err) => {
   _db.event.emit('refreshed', err)
   lastCall = (new Date()).toISOString()
   if (config.local.save !== 'NEVER') {
@@ -168,7 +168,7 @@ const endRefresh = function (err) {
   }
 }
 
-const callGithub = function (err, res) {
+const callGithub = (err, res) => {
   trackPendingGists(true, 'start of callGithub')
 
   if (err) {
@@ -191,7 +191,7 @@ const callGithub = function (err, res) {
   }
 }
 
-const getRawFile = function (err, res, body, fileParams) {
+const getRawFile = (err, res, body, fileParams) => {
   // GATHER RAW AND SAVE FILE TO DB
   if (err) {
     fileParams.file.error = 'dropped_raw_file'
@@ -204,7 +204,7 @@ const getRawFile = function (err, res, body, fileParams) {
   }
 
   _db.merge(fileParams.file)
-  fileSave(fileParams.file, function (theFile) {
+  fileSave(fileParams.file, (theFile) => {
     _db.merge(theFile)
   })
 
@@ -218,7 +218,7 @@ const getRawFile = function (err, res, body, fileParams) {
   }
 }
 
-const gatherGithubInfo = function (gists, gistIndex, fileIndex) {
+const gatherGithubInfo = (gists, gistIndex, fileIndex) => {
   if (gistIndex < gists.length) {
     const gist = gists[gistIndex]
 
@@ -258,7 +258,7 @@ const gatherGithubInfo = function (gists, gistIndex, fileIndex) {
           gistIndex: gistIndex
         }
         trackPendingGists(true, 'get raw file gatherGithubInfo')
-        request({uri: rawFileUrl}, function (err, res, body) { getRawFile(err, res, body, fileParams) })
+        request({uri: rawFileUrl}, (err, res, body) => { getRawFile(err, res, body, fileParams) })
       } else {
         trackPendingGists(true, 'next file gatherGithubInfo')
         gatherGithubInfo(gists, gistIndex, fileIndex + 1)
@@ -275,7 +275,7 @@ const gatherGithubInfo = function (gists, gistIndex, fileIndex) {
   }
 }
 
-const trackPendingGists = function (add, note) {
+const trackPendingGists = (add, note) => {
   if (add) {
     numGistPending === -1 ? numGistPending = 1 : numGistPending++
   } else {
