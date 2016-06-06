@@ -15,9 +15,22 @@
     "gist",
     "github"
   ],
-  "main": "./gist-db",
+  "main": "./build/gist-db",
   "scripts": {
+    "prepublish": "npm run build",
+    "prebuild": "rm -rf build && mkdir build",
+    "build": "babel gist-db.js -o build/gist-db.js",
+    "watch": "babel gist-db.js -w -o build/gist-db.js",
     "test": "standard"
+  },
+  "standard": {
+    "parser": "babel-eslint"
+  },
+  "babel": {
+    "presets": [
+      "es2015",
+      "stage-2"
+    ]
   },
   "repository": {
     "type": "git",
@@ -30,6 +43,10 @@
   },
   "license": "MIT",
   "devDependencies": {
+    "babel-cli": "^6.9.0",
+    "babel-eslint": "^6.0.4",
+    "babel-preset-es2015": "^6.9.0",
+    "babel-preset-stage-2": "^6.5.0",
     "standard": "^7.1.2"
   }
 }
