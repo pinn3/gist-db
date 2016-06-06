@@ -6,7 +6,7 @@ module.exports = {
     version: '3.0.0'
   },
   local: {
-    save: 'NEVER', // NEVER, ON_REFRESH, ALWAYS 
-    location: undefined
+    save: 'NEVER', // NEVER, ON_REFRESH, ALWAYS
+    location: null
   }
 }
