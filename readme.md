@@ -1,5 +1,6 @@
 [![npm downloads](https://img.shields.io/npm/dm/gist-db.svg)](https://www.npmjs.com/package/gist-db)
 [![npm version](https://img.shields.io/npm/v/gist-db.svg)](https://www.npmjs.com/package/gist-db)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 # Gist-DB
 
@@ -9,7 +10,7 @@ and [Github][node-github-link].
 ## Install
 
 ```sh
-$ npm install gist-db
+npm install gist-db
 ```
 
 ## Usage
