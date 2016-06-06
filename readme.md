@@ -1,4 +1,4 @@
-# Gist-DB
+# :cloud: Gist-DB :cloud:
 
 Treat your gist account like a database. Powered by [TaffyDB][taffydb-link]
 and [Github][node-github-link].
@@ -10,7 +10,7 @@ and [Github][node-github-link].
 ## Install
 
 ```sh
-npm install gist-db
+npm install --save gist-db
 ```
 
 ## Usage
