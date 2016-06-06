@@ -1,3 +1,6 @@
+[![npm downloads](https://img.shields.io/npm/dm/gist-db.svg)](https://www.npmjs.com/package/gist-db)
+[![npm version](https://img.shields.io/npm/v/gist-db.svg)](https://www.npmjs.com/package/gist-db)
+
 # Gist-DB
 
 Treat your gist account like a database. Powered by [TaffyDB][taffydb-link]
@@ -6,7 +9,7 @@ and [Github][node-github-link].
 ## Install
 
 ```sh
-npm install gist-db
+$ npm install gist-db
 ```
 
 ## Usage
