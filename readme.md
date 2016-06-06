@@ -1,11 +1,11 @@
-[![npm downloads](https://img.shields.io/npm/dm/gist-db.svg)](https://www.npmjs.com/package/gist-db)
-[![npm version](https://img.shields.io/npm/v/gist-db.svg)](https://www.npmjs.com/package/gist-db)
-[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
-
 # Gist-DB
 
 Treat your gist account like a database. Powered by [TaffyDB][taffydb-link]
 and [Github][node-github-link].
+
+[![npm downloads](https://img.shields.io/npm/dm/gist-db.svg)](https://www.npmjs.com/package/gist-db)
+[![npm version](https://img.shields.io/npm/v/gist-db.svg)](https://www.npmjs.com/package/gist-db)
+[![js-standard-style](https://img.shields.io/badge/code%20style-standard-brightgreen.svg)](http://standardjs.com/)
 
 ## Install
 
