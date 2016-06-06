@@ -6,7 +6,7 @@ const config = {
   }
 }
 
-const GISTDB = require('../gist-db')
+import GISTDB from '../build/gist-db'
 
 const fileInit = (file) => {
   // init custom group object
