@@ -38,7 +38,7 @@ _db.event.on('refreshed', function(err){
 });
 ```
 
-## File Object
+## File Object structure
 
 ```js
 {
@@ -59,6 +59,19 @@ _db.event.on('refreshed', function(err){
     description: "the gist description"
   }
 }
+```
+
+## Demo
+
+```sh
+# Clone the repository
+git clone https://github.com/mcwhittemore/gist-db
+
+# Install dependencies, this will also run the build script
+npm install
+
+# Try out the demo!
+node demo/demo.js
 ```
 
 ## API
