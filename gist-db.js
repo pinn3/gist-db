@@ -1,14 +1,14 @@
 'use strict'
 
-const url = require('url')
+import url from 'url'
 
-const GitHubApi = require('github')
-const TAFFY = require('taffydb').taffy
-const EventEmitter = require('events').EventEmitter
-const request = require('request')
+import GitHubApi from 'github'
+import {taffy as TAFFY} from 'taffydb'
+import { EventEmitter } from 'events'
+import request from 'request'
+import config from './config'
 
-let config = require('./config')
-
+let finalConfig = config
 let _db = null
 let githubMeta = null
 let fileInit = null
@@ -16,10 +16,10 @@ let fileSave = null
 let lastCall = null
 let numGistPending = -1
 
-module.exports = (userConfig, userFileInit, userFileSave) => {
+export default (userConfig, userFileInit, userFileSave) => {
   // merge configs
   if (typeof userConfig === 'object') {
-    config = mergeConfigs(config, userConfig)
+    finalConfig = mergeConfigs(config, userConfig)
   } else if (typeof userConfig === 'function') {
     userFileInit = userConfig
     userConfig = {}
@@ -45,12 +45,12 @@ module.exports = (userConfig, userFileInit, userFileSave) => {
 
   // CONNECT TO GITHUB
   _db.github = new GitHubApi({
-    version: config.github.version,
+    version: finalConfig.github.version,
     timeout: config.github.timeout
   })
 
-  if (config.github.authenticate) {
-    _db.github.authenticate(config.github.authenticate)
+  if (finalConfig.github.authenticate) {
+    _db.github.authenticate(finalConfig.github.authenticate)
   }
 
   // CREATE EVENTS
@@ -64,8 +64,8 @@ module.exports = (userConfig, userFileInit, userFileSave) => {
 const initDB = () => {
   let data = []
 
-  if (config.local.save !== 'NEVER') {
-    if (!config.local.save) {
+  if (finalConfig.local.save !== 'NEVER') {
+    if (!finalConfig.local.save) {
       // EMIT SOME ERR
     } else {
       // OPEN FILE
@@ -108,7 +108,7 @@ const mergeConfigs = (keep, add) => {
 const runRefresh = () => {
   _db.event.emit('refreshing')
   refresh(1)
-  setTimeout(runRefresh, config.refreshMin * 1000 * 60)
+  setTimeout(runRefresh, finalConfig.refreshMin * 1000 * 60)
 }
 
 const refresh = (pageNum) => {
@@ -119,8 +119,8 @@ const refresh = (pageNum) => {
   }
 
   const options = {
-    user: config.github.username,
-    per_page: config.github.per_page,
+    user: finalConfig.github.username,
+    per_page: finalConfig.github.per_page,
     page: pageNum
   }
 
@@ -163,7 +163,7 @@ const continueRefresh = () => {
 const endRefresh = (err) => {
   _db.event.emit('refreshed', err)
   lastCall = (new Date()).toISOString()
-  if (config.local.save !== 'NEVER') {
+  if (finalConfig.local.save !== 'NEVER') {
     saveDB()
   }
 }

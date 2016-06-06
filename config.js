@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   refreshMin: 10,
   github: {
     per_page: 100,
