@@ -7,12 +7,11 @@ var config = {
 var GISTDB = require('../gist-db')
 
 var fileInit = function (file) {
-
   // init custom group object
   file.groups = {}
 
   // define groups and their regex include rules
-  var group_rules = {
+  var groupRules = {
     'blog': /^Blog_/,
     'project': /^Project_/,
     'icon': /^Icon_$/,
@@ -20,27 +19,27 @@ var fileInit = function (file) {
   }
 
   // get group names
-  var groups = Object.keys(group_rules)
+  var groups = Object.keys(groupRules)
 
   // set file as excluded as we only want to include it if it has a group
   var include = false
 
   for (var i = 0; i < groups.length; i++) {
     var group = groups[i]
-    var rule = group_rules[group]
+    var rule = groupRules[group]
 
     // check if filename matches regex rule
     if (file.filename.search(rule) > -1) {
       file.groups[group] = true // set included in group as true
       include = true // set include file as true
-    }else {
+    } else {
       file.groups[group] = false
     }
   }
 
   if (include) {
     return file
-  }else {
+  } else {
     return undefined
   }
 }
@@ -71,13 +70,16 @@ _db.event.on('refreshing', function () {
 })
 
 _db.event.on('refreshed', function (err) {
+  if (err) {
+    console.log(err)
+  }
   console.log('refresh done')
   _db().each(function (file) {
     console.log(file.id)
     if (!file.error) {
       console.log('RAW: ' + file.raw.length + ' | HTML: ' + file.html.length)
       console.log()
-    }else {
+    } else {
       console.log('ERROR')
       console.log()
     }
