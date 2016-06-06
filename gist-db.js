@@ -197,6 +197,33 @@ const callGithub = function (err, res) {
   }
 }
 
+const getRawFile = function (err, res, body, fileParams) {
+  // GATHER RAW AND SAVE FILE TO DB
+  if (err) {
+    fileParams.file.error = 'dropped_raw_file'
+    fileParams.file.raw = null
+
+    _db.event.emit('file_error', err, fileParams.file)
+  } else {
+    fileParams.file.error = null
+    fileParams.file.raw = body
+  }
+
+  _db.merge(fileParams.file)
+  fileSave(fileParams.file, function (theFile) {
+    _db.merge(theFile)
+  })
+
+  trackPendingGists(false, 'got file getRawFile')
+
+  if (fileParams.fileIndex === fileParams.filenames.length - 1 && fileParams.gistIndex === fileParams.gists.length - 1 && numGistPending === 0) {
+    endRefresh()
+  } else {
+    trackPendingGists(true, 'get raw file getRawFile')
+    gatherGithubInfo(fileParams.gists, fileParams.gistIndex, fileParams.fileIndex + 1)
+  }
+}
+
 const gatherGithubInfo = function (gists, gistIndex, fileIndex) {
   if (gistIndex < gists.length) {
     const gist = gists[gistIndex]
@@ -229,35 +256,15 @@ const gatherGithubInfo = function (gists, gistIndex, fileIndex) {
       }
 
       if (file && (!oldFile || file.gist.updated_at.getTime() > oldFile.gist.updated_at.getTime())) {
-        // GATHER RAW AND SAVE FILE TO DB
-        const getRawFile = function (err, res, body) {
-          if (err) {
-            file.error = 'dropped_raw_file'
-            file.raw = null
-
-            _db.event.emit('file_error', err, file)
-          } else {
-            file.error = null
-            file.raw = body
-          }
-
-          _db.merge(file)
-          fileSave(file, function (theFile) {
-            _db.merge(theFile)
-          })
-
-          trackPendingGists(false, 'got file getRawFile')
-
-          if (fileIndex === filenames.length - 1 && gistIndex === gists.length - 1 && numGistPending === 0) {
-            endRefresh()
-          } else {
-            trackPendingGists(true, 'get raw file getRawFile')
-            gatherGithubInfo(gists, gistIndex, fileIndex + 1)
-          }
+        const fileParams = {
+          file: file,
+          fileIndex: fileIndex,
+          filenames: filenames,
+          gists: gists,
+          gistIndex: gistIndex
         }
-
         trackPendingGists(true, 'get raw file gatherGithubInfo')
-        request({uri: rawFileUrl}, getRawFile)
+        request({uri: rawFileUrl}, function (err, res, body) { getRawFile(err, res, body, fileParams) })
       } else {
         trackPendingGists(true, 'next file gatherGithubInfo')
         gatherGithubInfo(gists, gistIndex, fileIndex + 1)
