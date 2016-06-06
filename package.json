@@ -7,22 +7,29 @@
     {
       "name": "Matthew Chase Whittemore",
       "email": "mcwhittemore@gmail.com"
-    } 
+    }
   ],
   "keywords": [
     "database",
     "db",
-    "gist"
+    "gist",
+    "github"
   ],
   "main": "./gist-db",
+  "scripts": {
+    "test": "standard"
+  },
   "repository": {
     "type": "git",
     "url": "https://github.com/mcwhittemore/gist-db.git"
   },
   "dependencies": {
-    "github":"https://github.com/mcwhittemore/node-github/tarball/master",
-    "request":"2.14.0",
+    "github": "https://github.com/mcwhittemore/node-github/tarball/master",
+    "request": "2.14.0",
     "taffydb": "2.7.2"
   },
-  "license": "MIT"
+  "license": "MIT",
+  "devDependencies": {
+    "standard": "^7.1.2"
+  }
 }
