@@ -19,8 +19,8 @@
   "scripts": {
     "prepublish": "npm run build",
     "prebuild": "rm -rf build && mkdir build",
-    "build": "babel *.js -d build",
-    "watch": "babel *.js -w -d build",
+    "build": "babel src -d build",
+    "watch": "babel src -w -d build",
     "test": "standard"
   },
   "standard": {
