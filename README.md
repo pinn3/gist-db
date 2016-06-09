@@ -17,8 +17,8 @@ npm install --save gist-db
 
 ```js
 var config = {
-  github:{
-    username:"mcwhittemore"
+  github: {
+    username: "mcwhittemore"
   }
 }
 
@@ -65,7 +65,7 @@ _db.event.on('refreshed', function(err){
 
 ```sh
 # Clone the repository
-git clone https://github.com/mcwhittemore/gist-db
+git clone https://github.com/pinn3/gist-db
 
 # Install dependencies, this will also run the build script
 npm install
@@ -237,8 +237,7 @@ Use to be notified of errors when connecting with github.
 
 ## Licenses
 
-All code not otherwise specified is Copyright 2013 Matthew Chase Whittemore and
-is released under the MIT License.
+All code not otherwise specified is released under the MIT License.
 
 All code found in the node_modules directory is Copyrighted by its creators. 
 Please see each module for further details.

@@ -1,12 +1,12 @@
 {
   "name": "gist-db",
   "version": "0.1.4",
-  "author": "Matthew Chase Whittemore <mcwhittemore@gmail.com>",
+  "author": "pinn3 <iam@lacking.education>",
   "description": "Treat your gist account like a database",
   "contributors": [
     {
-      "name": "Matthew Chase Whittemore",
-      "email": "mcwhittemore@gmail.com"
+      "name": "pinn3",
+      "email": "iam@lacking.education"
     }
   ],
   "keywords": [
@@ -17,7 +17,7 @@
   ],
   "main": "./build",
   "scripts": {
-    "prepublish": "npm run build",
+    "prepublish": "npm test && npm run build",
     "postinstall": "npm run build",
     "prebuild": "rm -rf build && mkdir build",
     "build": "babel src -d build",
@@ -35,7 +35,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/mcwhittemore/gist-db.git"
+    "url": "https://github.com/pinn3/gist-db.git"
   },
   "dependencies": {
     "github": "https://github.com/mcwhittemore/node-github/tarball/master",
