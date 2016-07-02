@@ -219,6 +219,10 @@ Use to be notified of errors when connecting with github.
 *   Request was being requried before each use, which was causing a timeout
     problems. Updated the code to use a single request object.
 
+### 0.1.5
+
+*   Added local storage functionality
+
 ## Things to be done
 
 ### 0.1.10
