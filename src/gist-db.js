@@ -1,6 +1,6 @@
 import url from 'url'
 import GitHubApi from 'github'
-import {taffy as TAFFY} from 'taffydb'
+import { taffy } from 'taffydb'
 import { EventEmitter } from 'events'
 import request from 'request'
 import config from './config'
@@ -75,7 +75,7 @@ const initDB = () => {
     }
   }
 
-  return TAFFY(data)
+  return taffy(data)
 }
 
 const saveDB = () => {
