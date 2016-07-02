@@ -7,6 +7,6 @@ export default {
   },
   local: {
     save: 'NEVER', // NEVER, ON_REFRESH, ALWAYS
-    location: null
+    location: null // ex. 'relative/path/to/local-storage.json'
   }
 }

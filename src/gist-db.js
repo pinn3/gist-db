@@ -1,3 +1,4 @@
+import fs from 'fs'
 import url from 'url'
 import GitHubApi from 'github'
 import { taffy } from 'taffydb'
@@ -59,33 +60,38 @@ export default (userConfig, userFileInit, userFileSave) => {
 }
 
 const initDb = () => {
-  let data = []
-
   if (finalConfig.local.save !== 'NEVER') {
     if (!finalConfig.local.save) {
-      // EMIT SOME ERR
-    } else {
-      // OPEN FILE
+      throw new Error('config.local.save was not set')
+    }
 
-      // CONVERT STRING TO OBJECT
+    if (!finalConfig.local.location) {
+      throw new Error('config.local.location was not set')
+    }
 
-      // CHECK OBJECT IS ARRAY
+    try {
+      const localDb = JSON.parse(fs.readFileSync(finalConfig.local.location))
+      if (localDb && !Array.isArray(localDb)) {
+        throw new Error('Local database was not an array')
+      }
 
-    // SET DATA TO OBJECT
+      return taffy(localDb)
+    } catch (err) {
+      if (err.code !== 'ENOENT') {
+        throw err
+      }
+
+      return taffy([])
     }
   }
-
-  return taffy(data)
 }
 
 const saveDb = () => {
-
   // GATHER DATA
-
-  // TURN DATA INTO A STRING
+  const gistStorage = db().get()
 
   // SAVE DATA
-
+  fs.writeFile(finalConfig.local.location, JSON.stringify(gistStorage))
 }
 
 const mergeConfigs = (keep, add) => {
@@ -161,7 +167,7 @@ const endRefresh = (err) => {
   db.event.emit('refreshed', err)
   lastCall = (new Date()).toISOString()
   if (finalConfig.local.save !== 'NEVER') {
-    saveDb()
+    saveDb(db)
   }
 }
 
@@ -246,7 +252,7 @@ const gatherGithubInfo = (gists, gistIndex, fileIndex) => {
         }
       }
 
-      if (file && (!oldFile || file.gist.updated_at.getTime() > oldFile.gist.updated_at.getTime())) {
+      if (file && (!oldFile || file.gist.updated_at.getTime() > new Date(oldFile.gist.updated_at).getTime())) {
         const fileParams = {
           file: file,
           fileIndex: fileIndex,
