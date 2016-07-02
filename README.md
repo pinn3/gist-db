@@ -22,17 +22,15 @@ var config = {
   }
 }
 
-var GISTDB = require("gist-db");
+var db = require("gist-db")(config);
 
-var _db = GISTDB(config);
-
-_db.event.on('refreshing', function(){
+db.event.on('refreshing', function(){
   //MIGHT WANT TO LOCK DOWN THINGS FOR A BIT
   console.log("LETS DO THIS");
 });
 
-_db.event.on('refreshed', function(err){
-  _db().each(function(file){
+db.event.on('refreshed', function(err){
+  db().each(function(file){
     console.log(file);
   });
 });
@@ -136,38 +134,38 @@ Available: {
     to save changes to the DB. Note: this will perform an update to the 
     database.
 
-### _db({field:value})
+### db({field:value})
 
 *   TaffyDB: Yes
 
 *   Returns: All rows that meet the passed criteria. Not passing an object,
     will return all rows.
 
-### _db.insert({})
+### db.insert({})
 
 Inserts records into the database.
 
 *   TaffyDB: Yes
 *   Returns: A query pointing to the inserted records
 
-### _db.github
+### db.github
 
 Full use of the github module passed the github subsection of your config file.
 
-### _db.event
+### db.event
 
 An implementation of require("events").EventEmitter
 
-### _db.event.on('refreshing', function(){})
+### db.event.on('refreshing', function(){})
 
 Use to be notified when gist-db is connecting gist for a refresh.
 
-### _db.event.on('refreshed', function(err){})
+### db.event.on('refreshed', function(err){})
 
 Use to be notified when gist-db is done its current refresh. If err is set,
 this refresh was ended due to error.
 
-### _db.event.on('file_error', function(err, file){})
+### db.event.on('file_error', function(err, file){})
 
 Use to be notified of errors in gathering data on the gist files.
 
@@ -176,7 +174,7 @@ Use to be notified of errors in gathering data on the gist files.
 *   err: The error object that triggered this event
 *   file: The file object that was being gathered when the error occurred
 
-### _db.event.on('github_error', function(err, res){})
+### db.event.on('github_error', function(err, res){})
 
 Use to be notified of errors when connecting with github.
 
