@@ -6,7 +6,7 @@ import request from 'request'
 import config from './config'
 
 let finalConfig = config
-let _db = null
+let db = null
 let githubMeta = null
 let fileInit = null
 let fileSave = null
@@ -33,21 +33,21 @@ export default (userConfig, userFileInit, userFileSave) => {
   fileInit = userFileInit
   fileSave = userFileSave
 
-  _db = initDB()
+  db = initDb()
 
-  _db.event = new EventEmitter()
+  db.event = new EventEmitter()
 
-  // ADD REFRESH FUNCTION TO _db
-  _db.refresh = refresh
+  // ADD REFRESH FUNCTION TO db
+  db.refresh = refresh
 
   // CONNECT TO GITHUB
-  _db.github = new GitHubApi({
+  db.github = new GitHubApi({
     version: finalConfig.github.version,
     timeout: config.github.timeout
   })
 
   if (finalConfig.github.authenticate) {
-    _db.github.authenticate(finalConfig.github.authenticate)
+    db.github.authenticate(finalConfig.github.authenticate)
   }
 
   // CREATE EVENTS
@@ -55,10 +55,10 @@ export default (userConfig, userFileInit, userFileSave) => {
   // START TIMER
   runRefresh()
 
-  return _db
+  return db
 }
 
-const initDB = () => {
+const initDb = () => {
   let data = []
 
   if (finalConfig.local.save !== 'NEVER') {
@@ -78,7 +78,7 @@ const initDB = () => {
   return taffy(data)
 }
 
-const saveDB = () => {
+const saveDb = () => {
 
   // GATHER DATA
 
@@ -103,7 +103,7 @@ const mergeConfigs = (keep, add) => {
 }
 
 const runRefresh = () => {
-  _db.event.emit('refreshing')
+  db.event.emit('refreshing')
   refresh(1)
   setTimeout(runRefresh, finalConfig.refreshMin * 1000 * 60)
 }
@@ -125,7 +125,7 @@ const refresh = (pageNum) => {
     options.since = lastCall
   }
 
-  _db.github.gists.getFromUser(options, callGithub)
+  db.github.gists.getFromUser(options, callGithub)
 
   trackPendingGists(false, 'end of refresh')
 }
@@ -158,10 +158,10 @@ const continueRefresh = () => {
 }
 
 const endRefresh = (err) => {
-  _db.event.emit('refreshed', err)
+  db.event.emit('refreshed', err)
   lastCall = (new Date()).toISOString()
   if (finalConfig.local.save !== 'NEVER') {
-    saveDB()
+    saveDb()
   }
 }
 
@@ -169,7 +169,7 @@ const callGithub = (err, res) => {
   trackPendingGists(true, 'start of callGithub')
 
   if (err) {
-    _db.event.emit('github_error', err, res)
+    db.event.emit('github_error', err, res)
     endRefresh(err)
   } else {
     githubMeta = res.meta
@@ -194,15 +194,15 @@ const getRawFile = (err, res, body, fileParams) => {
     fileParams.file.error = 'dropped_raw_file'
     fileParams.file.raw = null
 
-    _db.event.emit('file_error', err, fileParams.file)
+    db.event.emit('file_error', err, fileParams.file)
   } else {
     fileParams.file.error = null
     fileParams.file.raw = body
   }
 
-  _db.merge(fileParams.file)
+  db.merge(fileParams.file)
   fileSave(fileParams.file, (theFile) => {
-    _db.merge(theFile)
+    db.merge(theFile)
   })
 
   trackPendingGists(false, 'got file getRawFile')
@@ -240,7 +240,7 @@ const gatherGithubInfo = (gists, gistIndex, fileIndex) => {
 
       let oldFile = null
       if (file) {
-        oldFile = _db({id: file.id}).first()
+        oldFile = db({id: file.id}).first()
         if (!oldFile) {
           oldFile = null
         }
