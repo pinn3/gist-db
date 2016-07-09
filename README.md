@@ -40,7 +40,7 @@ db.event.on('refreshed', function(err){
 
 ```js
 {
-  id = gist_id+"_"+filename,
+  id = gist_id + "_" + filename,
   filename = filename,
   gist_id = gist_id,
   error: undefined,
@@ -65,11 +65,8 @@ db.event.on('refreshed', function(err){
 # Clone the repository
 git clone https://github.com/pinn3/gist-db
 
-# Install dependencies, this will also run the build script
-npm install
-
-# Try out the demo!
-node demo/demo.js
+# Run the demo! This will also install dependencies and run the build script
+npm run demo
 ```
 
 ## API
@@ -231,8 +228,6 @@ Use to be notified of errors when connecting with github.
 
 ### 0.1.10
 
-*   Add local file loading
-*   Add local file saving
 *   Add tests
 
 ### 0.2.0
