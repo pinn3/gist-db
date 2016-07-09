@@ -1,6 +1,6 @@
 {
   "name": "gist-db",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "author": "pinn3 <iam@lacking.education>",
   "description": "Treat your gist account like a database",
   "files": [
