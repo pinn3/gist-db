@@ -80,10 +80,10 @@ const initDb = () => {
       if (err.code !== 'ENOENT') {
         throw err
       }
-
-      return taffy([])
     }
   }
+
+  return taffy([])
 }
 
 const saveDb = () => {
