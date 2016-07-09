@@ -223,6 +223,10 @@ Use to be notified of errors when connecting with github.
 
 *   Added local storage functionality
 
+### 0.1.6
+
+*   Fix initDb to return empty taffyDb if `config.local.save` was set to `NEVER`
+
 ## Things to be done
 
 ### 0.1.10
