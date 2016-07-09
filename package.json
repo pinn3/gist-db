@@ -3,6 +3,10 @@
   "version": "0.1.5",
   "author": "pinn3 <iam@lacking.education>",
   "description": "Treat your gist account like a database",
+  "files": [
+    "build",
+    "README.md"
+  ],
   "contributors": [
     {
       "name": "pinn3",
@@ -22,7 +26,8 @@
     "prebuild": "rm -rf build && mkdir build",
     "build": "babel src -d build",
     "watch": "babel src -w -d build",
-    "test": "standard"
+    "test": "standard",
+    "demo": "npm install && node demo/demo.js"
   },
   "standard": {
     "parser": "babel-eslint"
