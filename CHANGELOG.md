@@ -1,3 +1,11 @@
+# 0.1.7
+
+*   Bumped `request` dependency version due to security issues
+
+# 0.1.6
+
+*   Fix initDb to return empty taffyDb if `config.local.save` was set to `NEVER`
+
 # 0.1.6
 
 *   Fix initDb to return empty taffyDb if `config.local.save` was set to `NEVER`
