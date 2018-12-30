@@ -44,7 +44,7 @@
   },
   "dependencies": {
     "github": "https://github.com/mcwhittemore/node-github/tarball/master",
-    "request": "2.14.0",
+    "request": "2.68.0",
     "taffydb": "2.7.2"
   },
   "license": "MIT",
