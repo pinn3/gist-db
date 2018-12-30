@@ -6,10 +6,6 @@
 
 *   Fix initDb to return empty taffyDb if `config.local.save` was set to `NEVER`
 
-# 0.1.6
-
-*   Fix initDb to return empty taffyDb if `config.local.save` was set to `NEVER`
-
 # 0.1.5
 
 *   Added local storage functionality
