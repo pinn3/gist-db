@@ -4,8 +4,7 @@
   "author": "pinn3 <iam@lacking.education>",
   "description": "Treat your gist account like a database",
   "files": [
-    "build",
-    "README.md"
+    "lib/"
   ],
   "contributors": [
     {
@@ -19,40 +18,11 @@
     "gist",
     "github"
   ],
-  "main": "./build",
-  "scripts": {
-    "prepublish": "npm test && npm run build",
-    "postinstall": "npm run build",
-    "prebuild": "rm -rf build && mkdir build",
-    "build": "babel src -d build",
-    "watch": "babel src -w -d build",
-    "test": "standard",
-    "demo": "npm install && node demo/demo.js"
-  },
-  "standard": {
-    "parser": "babel-eslint"
-  },
-  "babel": {
-    "presets": [
-      "es2015",
-      "stage-2"
-    ]
-  },
   "repository": {
     "type": "git",
     "url": "https://github.com/pinn3/gist-db.git"
   },
-  "dependencies": {
-    "github": "https://github.com/mcwhittemore/node-github/tarball/master",
-    "request": "2.68.0",
-    "taffydb": "2.7.2"
-  },
+  "dependencies": {},
   "license": "MIT",
-  "devDependencies": {
-    "babel-cli": "^6.9.0",
-    "babel-eslint": "^6.0.4",
-    "babel-preset-es2015": "^6.9.0",
-    "babel-preset-stage-2": "^6.5.0",
-    "standard": "^7.1.2"
-  }
+  "devDependencies": {}
 }

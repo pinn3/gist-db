@@ -1,12 +1,16 @@
-# 0.1.7
+# Unreleased
+
+*   A new take on the project was initiated
+
+# [0.1.7](https://github.com/pinn3/gist-db/releases/tag/v0.1.7)
 
 *   Bumped `request` dependency version due to security issues
 
-# 0.1.6
+# [0.1.6](https://github.com/pinn3/gist-db/releases/tag/v0.1.6)
 
 *   Fix initDb to return empty taffyDb if `config.local.save` was set to `NEVER`
 
-# 0.1.5
+# [0.1.5](https://github.com/pinn3/gist-db/releases/tag/v0.1.5)
 
 *   Added local storage functionality
 
