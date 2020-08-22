@@ -6,6 +6,8 @@
   "files": [
     "lib/"
   ],
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
   "contributors": [
     {
       "name": "pinn3",
@@ -22,7 +24,11 @@
     "type": "git",
     "url": "https://github.com/pinn3/gist-db.git"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@octokit/rest": "^18.0.3"
+  },
   "license": "MIT",
-  "devDependencies": {}
+  "devDependencies": {
+    "typescript": "^4.0.2"
+  }
 }

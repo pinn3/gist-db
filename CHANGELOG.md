@@ -1,6 +1,12 @@
 # Unreleased
 
-*   A new take on the project was initiated
+*   A new take on the project was initiated. The TaffyDB concept was thrown out
+    with a new custom API design replacing it
+
+*   TypeScript was introduced to up the reduce risks of human error
+
+*   The forked `node-github` dependency was replaced with the official
+    `@octokit/rest`package
 
 # [0.1.7](https://github.com/pinn3/gist-db/releases/tag/v0.1.7)
 
