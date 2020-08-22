@@ -21,12 +21,31 @@ npm install --save gist-db
     versions of node and npm are used:
 
     ```sh
+    # Build the library
+
+    docker run --rm -it \
+    -v $(pwd):/usr/src \
+    -w /usr/src \
+    node:12.13.1-alpine3.10 \
+    sh -c "npm install && npx tsc";
+
+    # Run the example
+
     docker run --rm -it \
     -v $(pwd):/usr/src \
     -w /usr/src \
     -e GITHUB_ACCESS_TOKEN="your access token" \
     node:12.13.1-alpine3.10 \
-    sh -c "npm install && npx tsc && node lib/index.js"
+    node examples/basic-usage.js;
+
+    # Or do both in one go
+
+    docker run --rm -it \
+    -v $(pwd):/usr/src \
+    -w /usr/src \
+    -e GITHUB_ACCESS_TOKEN="your access token" \
+    node:12.13.1-alpine3.10 \
+    sh -c "npm install && npx tsc && node examples/basic-usage.js";
     ```
 
 ## License
